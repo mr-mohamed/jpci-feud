@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JPCI Teachers Family Feud</title>
+<link rel="icon" href="logo.png">
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 20%,#1e40af,#0b1f8f 50%,#030a3d);color:#fff;font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif;display:flex;flex-direction:column;align-items:center;padding:28px 16px}
+img{max-width:min(560px,90vw);filter:drop-shadow(0 8px 16px #000a)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;width:min(900px,100%);margin-top:18px}
+.card{background:#0a1566cc;border:2px solid #5b7cff;border-radius:16px;padding:20px}
+.card h2{margin:0 0 6px;color:#ffd23f}
+.card p{margin:0 0 14px;color:#cfe0ff;font-size:15px}
+a.btn,button{display:inline-block;background:#ffd23f;color:#1a1200;font:700 18px system-ui,sans-serif;padding:12px 22px;border-radius:10px;border:0;text-decoration:none;cursor:pointer}
+input{font:700 22px ui-monospace,monospace;letter-spacing:4px;text-transform:uppercase;text-align:center;width:130px;padding:9px;border-radius:10px;border:2px solid #5b7cff;background:#030a3d;color:#fff;margin-right:8px}
+.how{width:min(900px,100%);margin-top:22px;color:#cfe0ff;font-size:14px}
+.how b{color:#fff}
+</style>
+</head>
+<body>
+<img src="logo.png" alt="JPCI Teachers Family Feud">
+<div class="cards">
+  <div class="card"><h2>🎤 Host computer</h2><p>Controls the game: reveal answers, strikes, scores, Fast Money, and the game editor. It shows a 4-letter room code.</p><a class="btn" href="host.html">Open Host</a></div>
+  <div class="card"><h2>📺 Board / projector</h2><p>The big screen everyone watches. Type the room code from the host screen.</p>
+    <form onsubmit="var c=this.code.value.trim();if(c){location.href='board.html?code='+encodeURIComponent(c)}return false"><input name="code" maxlength="4" placeholder="CODE" autocomplete="off"><button>Open Board</button></form></div>
+</div>
+<div class="how"><b>Tip:</b> on the board computer, click once anywhere to enable sound, then press <b>F</b> for fullscreen. Both computers need internet. If the school network blocks the connection, open the board in a second window on the host computer instead (host page → “Open board in this computer”) and drag that window to the projector.</div>
+</body>
+</html>

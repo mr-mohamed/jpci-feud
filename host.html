@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Family Feud – Host</title>
+<link rel="icon" href="logo.png">
+<style>
+*{box-sizing:border-box}
+:root{--bg:#0b1020;--card:#141b34;--card2:#1b2447;--line:#2a3566;--ink:#e8ecff;--mute:#93a0d6;--gold:#ffd23f;--green:#16a34a;--red:#e11d48;--blue:#3b5bff}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:8px 12px}
+button:hover{background:#26316a}
+button:disabled{opacity:.4;cursor:not-allowed}
+button.primary{background:var(--blue);border-color:#6f86ff}
+button.gold{background:var(--gold);color:#1a1200;border-color:#fff3b0;font-weight:700}
+button.danger{background:var(--red);border-color:#ff6b8a}
+button.small{padding:4px 8px;font-size:13px}
+input,select,textarea{background:#0e1530;border:1px solid var(--line);border-radius:8px;padding:7px 9px;width:100%}
+input[type=number]{width:90px}
+header{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px 16px;background:#0e1530;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+header h1{font-size:18px;margin:0 8px 0 0;color:var(--gold)}
+.code{font:700 20px ui-monospace,Menlo,monospace;letter-spacing:3px;background:#0b1020;border:1px solid var(--gold);color:var(--gold);padding:3px 10px;border-radius:8px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#f59e0b;margin-right:6px}
+.dot.ok{background:#22c55e}
+.status{color:var(--mute);font-size:13px}
+.layout{display:grid;grid-template-columns:270px 1fr;gap:14px;padding:14px 16px;max-width:1500px;margin:0 auto}
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px}
+.card h3{margin:0 0 8px;font-size:13px;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+.team input.tn{font-weight:700;font-size:16px;margin-bottom:6px}
+.srow{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.srow input{text-align:center;font:700 20px ui-monospace,monospace;color:var(--gold)}
+.team.ctrl{border-color:var(--gold);box-shadow:0 0 0 2px #ffd23f55}
+.nav button{display:block;width:100%;text-align:left;margin-bottom:6px}
+.nav button.act{background:var(--blue);border-color:#6f86ff}
+.nav .m{float:right;color:var(--gold);font-weight:700}
+.qline{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.badge{background:var(--card2);border:1px solid var(--line);border-radius:99px;padding:2px 10px;font-size:13px;color:var(--mute)}
+.badge.gold{background:var(--gold);color:#1a1200;border-color:var(--gold);font-weight:700}
+h2.q{margin:0;font-size:22px}
+.grid2{display:grid;grid-template-columns:1.3fr 1fr;gap:12px}
+@media(max-width:1100px){.grid2{grid-template-columns:1fr}}
+.ans{display:flex;align-items:center;gap:10px;width:100%;text-align:left;margin-bottom:6px;padding:10px 12px;font-size:17px}
+.ans .n{width:26px;height:26px;border-radius:50%;background:var(--blue);display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex:none}
+.ans .t{flex:1}
+.ans .p{font:700 18px ui-monospace,monospace;color:var(--gold)}
+.ans .b{font-size:12px;color:var(--mute);min-width:44px;text-align:right}
+.ans.rev{background:#14532d;border-color:#22c55e}
+.ans.rev .n{background:#22c55e;color:#04210f}
+.bank{font:900 54px ui-monospace,monospace;color:var(--gold);line-height:1}
+.strikes{display:flex;gap:8px;margin:8px 0}
+.sx{width:46px;height:46px;border-radius:8px;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--line)}
+.sx.on{background:var(--red);border-color:#ff6b8a;color:#fff}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.tip{color:var(--mute);font-size:13px}
+/* fast money */
+.fmgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fmrow{margin-bottom:10px}
+.fq{font-size:13px;color:var(--mute);margin:0 0 4px}
+.fkey{font-size:12px;color:#7d8bc4;margin-bottom:4px}
+.fmpair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fmcell{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:8px;display:grid;gap:6px}
+.fmcell.s1{border-color:var(--gold)}.fmcell.s2{border-color:#22c55e;background:#10381f}
+.fmcell .r2{display:flex;gap:6px}
+.fmcell .r2 input{width:80px;text-align:center;font-weight:700}
+.timer{font:900 64px ui-monospace,monospace;color:#fff}
+.timer.low{color:#ff6b8a}
+.who{display:flex;gap:6px;margin:6px 0}
+.who button.act{background:var(--gold);color:#1a1200;font-weight:700}
+.tot{font:900 30px ui-monospace,monospace;color:var(--gold)}
+/* editor */
+#modal{position:fixed;inset:0;background:#000b;z-index:50;display:none;overflow:auto;padding:20px}
+#modal.on{display:block}
+.mbox{max-width:1000px;margin:0 auto;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.mbox h2{margin-top:0}
+.ecard{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:12px}
+.erow{display:grid;grid-template-columns:1fr 90px 34px;gap:6px;margin-bottom:5px}
+.ehead{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.ehead input.eq{flex:1}
+.sum{font-weight:700;margin-left:auto}
+.sum.bad{color:#ff8aa5}.sum.good{color:#4ade80}
+.footbar{position:sticky;bottom:0;background:var(--card);padding-top:10px;display:flex;gap:8px;justify-content:flex-end;border-top:1px solid var(--line);margin-top:10px}
+kbd{background:#0e1530;border:1px solid var(--line);border-radius:4px;padding:0 5px;font-size:12px}
+</style>
+</head>
+<body>
+<header>
+  <img src="logo.png" alt="" style="height:38px"><h1>HOST</h1>
+  <span>Room code <span class="code" id="codeBox"></span></span>
+  <button class="small" id="btnCode">Change</button>
+  <span class="status"><span class="dot" id="dot"></span><span id="statusTxt">Starting…</span></span>
+  <span style="flex:1"></span>
+  <button class="small" id="btnFade" title="Fade out the music playing on the board">🔉 Fade out music</button>
+  <button class="small" id="btnCopy">Copy board link</button>
+  <button class="small" id="btnOpen">Open board in this computer</button>
+  <button class="small primary" id="btnEdit">✎ Edit game</button>
+  <button class="small danger" id="btnReset">Reset game</button>
+</header>
+<div id="lanInfo" style="display:none;padding:6px 16px;background:#14301f;border-bottom:1px solid #22c55e;color:#bbf7d0;font-size:14px"></div>
+<div class="layout" id="app"></div>
+<div id="modal"></div>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="feud.js"></script>
+<script>
+(function(){
+const F = Feud, esc = F.esc;
+let game = F.loadGame();
+let S = F.loadState(game);
+const code = F.getRoomCode();
+const $ = id => document.getElementById(id);
+let hostEnd = 0, draft = null, inputTimer = null;
+if (S.fm && S.fm.timer && S.fm.timer.running) S.fm.timer.running = false;   // safe after refresh
+
+/* ---------- sync ---------- */
+let lanUrl = '';
+const sync = F.startHostSync(code, () => S, st => {
+  const n = st.remote + st.local;
+  $('dot').className = 'dot' + (n > 0 ? ' ok' : '');
+  let msg = n > 0 ? 'Board connected' : 'No board connected yet';
+  if (st.lan){
+    msg += ' · offline network mode';
+    lanUrl = 'http://' + st.lanInfo.ip + ':' + st.lanInfo.port + '/board.html';
+    $('lanInfo').style.display = 'block';
+    $('lanInfo').innerHTML = '📺 <b>Board computer:</b> open <b>' + lanUrl + '</b> in its browser (no room code needed). Both computers must be on the same network.';
+  }
+  else if (st.peer === 'nolib') msg += ' · no internet (use “Open board in this computer”, or run the offline server)';
+  else if (st.peer === 'retry') msg += ' · re-claiming room code…';
+  else if (st.peer === 'error') msg += ' · network trouble';
+  else if (st.peer === 'connecting') msg += ' · connecting to network…';
+  $('statusTxt').textContent = msg;
+});
+$('codeBox').textContent = code;
+function boardUrl(){ return lanUrl ? lanUrl : new URL('board.html?code=' + code, location.href).href; }
+$('btnCopy').onclick = () => {
+  const u = boardUrl();
+  (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(
+    () => { $('btnCopy').textContent = 'Copied!'; setTimeout(() => $('btnCopy').textContent = 'Copy board link', 1500); },
+    () => prompt('Copy this link:', u));
+};
+$('btnOpen').onclick = () => window.open(boardUrl(), 'feudboard', 'width=1100,height=650');
+$('btnFade').onclick = () => commit('fade');
+$('btnCode').onclick = () => {
+  const c = (prompt('New 4-character room code (letters/numbers):', code) || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (c.length === 4) { F.setRoomCode(c); location.reload(); }
+};
+$('btnReset').onclick = () => {
+  if (!confirm('Reset the whole game? This clears scores and the board.')) return;
+  S = F.newState(game, S); S.teams.forEach(t => t.score = 0); S.view = 'title'; commit('intro');
+};
+
+/* ---------- commit ---------- */
+function commit(evType, x, noRender){
+  S.v++;
+  if (evType) S.ev = { n: S.ev.n + 1, type: evType, x: x || 0 };
+  F.saveState(S);
+  sync.send(S);
+  if (!noRender) render();
+}
+function softCommit(){ clearTimeout(inputTimer); inputTimer = setTimeout(() => commit(null, 0, true), 250); }
+
+/* ---------- navigation ---------- */
+function gotoRound(i){
+  const rd = game.rounds[i]; if (!rd) return;
+  S.view = 'round'; S.r = i; S.revealed = rd.answers.map(() => false); S.banked = rd.answers.map(() => false);
+  S.strikes = 0; S.bank = 0; S.awarded = false; S.ctrl = null;
+  commit('round');
+}
+function go(where){
+  if (where === 'title'){ S.view = 'title'; commit('intro'); }
+  else if (where === 'fm'){ S.view = 'fm'; commit('round'); }
+  else if (where === 'end'){ S.view = 'end'; commit('win'); }
+  else if (where.indexOf('round:') === 0) gotoRound(+where.split(':')[1]);
+}
+
+/* ---------- rendering ---------- */
+function fmTotals(){
+  const t = [0, 0];
+  [0, 1].forEach(p => S.fm.players[p].cells.forEach(c => { if (c.st >= 2) t[p] += c.pts; }));
+  return t;
+}
+function teamsHTML(){
+  return S.teams.map((t, i) => `
+    <div class="card team ${S.ctrl === i && S.view === 'round' ? 'ctrl' : ''}">
+      <h3>Team ${i + 1}</h3>
+      <input class="tn" data-in="tname" data-t="${i}" value="${esc(t.name)}">
+      <div class="srow"><button class="small" data-act="sc" data-t="${i}" data-d="-10">−10</button>
+        <input type="number" data-in="tscore" data-t="${i}" value="${t.score}">
+        <button class="small" data-act="sc" data-t="${i}" data-d="10">+10</button></div>
+      ${S.view === 'round' ? `<button class="small" data-act="ctrl" data-t="${i}" style="width:100%">${S.ctrl === i ? '✓ In control (click to clear)' : 'Give control'}</button>` : ''}
+    </div>`).join('');
+}
+function navHTML(){
+  let h = `<div class="card nav"><h3>Game</h3>
+    <button data-act="go" data-w="title" class="${S.view === 'title' ? 'act' : ''}">Title screen</button>`;
+  game.rounds.forEach((r, i) => {
+    h += `<button data-act="go" data-w="round:${i}" class="${S.view === 'round' && S.r === i ? 'act' : ''}">Round ${i + 1}<span class="m">${r.multiply > 1 ? '×' + r.multiply : ''}</span></button>`;
+  });
+  h += `<button data-act="go" data-w="fm" class="${S.view === 'fm' ? 'act' : ''}">⚡ Fast Money</button>
+    <button data-act="go" data-w="end" class="${S.view === 'end' ? 'act' : ''}">🏆 Final scores</button></div>`;
+  return h;
+}
+function titleMain(){
+  return `<div class="card"><h2 class="q">${esc(game.settings.title || 'Family Feud')}</h2>
+    <p class="tip">The board is showing the title screen. Set team names and scores on the left, then start Round 1.</p>
+    <div class="btnrow"><button data-act="intro">🎵 Play intro music</button><button data-act="fade">🔉 Fade out music</button><button class="gold" data-act="go" data-w="round:0">▶ Start Round 1</button></div></div>
+    <div class="card"><h3>How it works</h3>
+    <p class="tip">1) Face-off: give control to the team that wins it. 2) Click answers as players say them – they flip on the board and the bank grows.
+    3) Wrong answer → <b>Strike</b>. Three strikes → the other team gets one chance to steal (use <b>Steal miss</b> if they get it wrong).
+    4) <b>Award</b> the bank to the winning team. Keys: <kbd>1</kbd>–<kbd>9</kbd> reveal, <kbd>X</kbd> strike.</p></div>`;
+}
+function roundMain(){
+  const rd = game.rounds[S.r]; if (!rd) return '<div class="card">No such round.</div>';
+  const m = rd.multiply;
+  const last = S.r >= game.rounds.length - 1;
+  const answers = rd.answers.map((a, i) => `
+    <button class="ans ${S.revealed[i] ? 'rev' : ''}" data-act="reveal" data-i="${i}">
+      <span class="n">${i + 1}</span><span class="t">${esc(a.ans)}</span><span class="p">${a.pnt}</span>
+      <span class="b">${m > 1 ? '= ' + a.pnt * m : ''}</span></button>`).join('');
+  return `
+  <div class="card"><div class="qline"><span class="badge">Round ${S.r + 1} of ${game.rounds.length}</span>
+    <span class="badge ${m > 1 ? 'gold' : ''}">×${m} points</span></div><h2 class="q">${esc(rd.question)}</h2></div>
+  <div class="grid2">
+    <div class="card"><h3>Answers – click to reveal (click again to hide)</h3>${answers}</div>
+    <div>
+      <div class="card"><h3>Bank</h3><div class="bank">${S.bank}</div>
+        <div class="strikes">${[0, 1, 2].map(i => `<div class="sx ${i < S.strikes ? 'on' : ''}">✕</div>`).join('')}</div>
+        <div class="btnrow">
+          <button class="danger" data-act="strike" ${S.strikes >= 3 ? 'disabled' : ''}>✕ Strike</button>
+          <button data-act="steal">✕ Steal miss</button>
+          <button data-act="clearstrikes" class="small">Clear strikes</button></div>
+        <div class="btnrow">
+          <button class="gold" data-act="award" data-t="0" ${S.awarded ? 'disabled' : ''}>Award to ${esc(S.teams[0].name)}</button>
+          <button class="gold" data-act="award" data-t="1" ${S.awarded ? 'disabled' : ''}>Award to ${esc(S.teams[1].name)}</button></div>
+        <p class="tip">${S.awarded ? 'Bank awarded ✓' : 'After 3 strikes the other team can steal the bank.'}</p></div>
+      <div class="card"><h3>Round</h3>
+        <div class="btnrow"><button data-act="revealall">Reveal remaining answers</button>
+        <button data-act="go" data-w="round:${S.r}" class="small">Restart this round</button></div>
+        <div class="btnrow">
+          <button data-act="go" data-w="${S.r > 0 ? 'round:' + (S.r - 1) : 'title'}">← Back</button>
+          <button class="primary" data-act="go" data-w="${last ? 'fm' : 'round:' + (S.r + 1)}">${last ? 'Fast Money →' : 'Next round →'}</button></div></div>
+    </div>
+  </div>`;
+}
+function fmCell(p, q){
+  const c = S.fm.players[p].cells[q], qd = game.final_round[q];
+  const opts = ['<option value="-1">No match (0)</option>'].concat(qd.answers.map((a, i) =>
+    `<option value="${i}" ${c.sel === i ? 'selected' : ''}>${esc(a[0])} (${a[1]})</option>`)).join('');
+  const lbl = ['Show answer', 'Show points', 'Hide'][c.st];
+  const o = p === 1 ? S.fm.players[0].cells[q] : null;
+  const same = o && ((c.sel >= 0 && c.sel === o.sel) || (c.text.trim() && c.text.trim().toLowerCase() === o.text.trim().toLowerCase()));
+  const rep = p === 1 ? `<button data-act="fmrep" title="Double beep on the board: answer already given by Player 1" style="${same ? 'background:#b91c1c;color:#fff' : ''}">🔁 Repeat beep${same ? ' – same as P1!' : ''}</button>` : '';
+  return `<div class="fmcell s${c.st}">
+    <input data-in="fmtext" data-p="${p}" data-q="${q}" value="${esc(c.text)}" placeholder="What they said…">
+    <select data-in="fmsel" data-p="${p}" data-q="${q}">${opts}</select>
+    <div class="r2"><input type="number" data-in="fmpts" data-p="${p}" data-q="${q}" value="${c.pts}" title="Points"><button class="${c.st === 2 ? '' : 'gold'}" style="flex:1" data-act="stage" data-p="${p}" data-q="${q}">${lbl}</button></div>${rep}</div>`;
+}
+function fmMain(){
+  const t = fmTotals(), tm = S.fm.timer, qs = game.final_round;
+  let rows = qs.map((qd, q) => `<div class="fmrow"><div class="fq"><b>Q${q + 1}.</b> ${esc(qd.question)}</div>
+    <div class="fkey">${qd.answers.map(a => esc(a[0]) + ' ' + a[1]).join(' · ')}</div>
+    <div class="fmpair">${fmCell(0, q)}${fmCell(1, q)}</div></div>`).join('');
+  return `
+  <div class="card"><div class="qline"><span class="badge gold">⚡ Fast Money</span><span class="tip">If Player 2 repeats Player 1's answer, press “Repeat beep” and take another answer. Points reveal: ding, or buzzer for 0.</span></div>
+    <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap">
+      <div><div class="timer" id="hostTimer">${Math.ceil(tm.left)}</div></div>
+      <div><div class="who"><button data-act="fmplayer" data-p="0" class="${S.fm.player === 0 ? 'act' : ''}">Player 1 (${game.final_round_timers[0]}s)</button>
+        <button data-act="fmplayer" data-p="1" class="${S.fm.player === 1 ? 'act' : ''}">Player 2 (${game.final_round_timers[1]}s)</button></div>
+        <div class="btnrow"><button data-act="fmhide" class="${S.fm.hideP1 ? 'act' : ''}">${S.fm.hideP1 ? '🙈 Player 1 answers hidden – click to show' : '👁 Hide Player 1 answers on board'}</button></div>
+        <div class="btnrow"><button class="gold" data-act="tstart">${tm.running ? '⏸ Pause' : '▶ Start timer'}</button><button data-act="treset">Reset timer</button></div></div>
+      <div style="margin-left:auto;text-align:right"><div class="tip">Revealed total</div><div class="tot">${t[0] + t[1]}</div>
+        <div class="tip">${t[0] + t[1] >= 200 ? '🎉 200+ — winners!' : 'Need 200'}</div></div></div></div>
+  <div class="fmgrid" style="margin-bottom:6px"><div class="badge" style="text-align:center">PLAYER 1</div><div class="badge" style="text-align:center">PLAYER 2</div></div>
+  <div class="card">${rows}</div>
+  <div class="card"><div class="btnrow"><span class="tip" style="align-self:center">Add Fast Money total (${t[0] + t[1]}) to a team:</span>
+    <button data-act="fmadd" data-t="0">${esc(S.teams[0].name)}</button><button data-act="fmadd" data-t="1">${esc(S.teams[1].name)}</button>
+    <button class="primary" data-act="go" data-w="end" style="margin-left:auto">Final scores →</button></div></div>`;
+}
+function endMain(){
+  const a = S.teams[0], b = S.teams[1];
+  const w = a.score === b.score ? 'It\'s a tie!' : (a.score > b.score ? a.name : b.name) + ' wins!';
+  return `<div class="card"><h2 class="q">${esc(w)}</h2><p class="tip">${esc(a.name)}: ${a.score} · ${esc(b.name)}: ${b.score}</p>
+    <div class="btnrow"><button data-act="go" data-w="fm">← Back to Fast Money</button></div></div>`;
+}
+function render(){
+  const main = S.view === 'round' ? roundMain() : S.view === 'fm' ? fmMain() : S.view === 'end' ? endMain() : titleMain();
+  $('app').innerHTML = `<aside>${teamsHTML()}${navHTML()}</aside><main>${main}</main>`;
+  updHostTimer();
+}
+
+/* ---------- actions ---------- */
+function stage(p, q){
+  const c = S.fm.players[p].cells[q], before = fmTotals();
+  c.st = (c.st + 1) % 3;
+  if (c.st === 1) commit('fmans');
+  else if (c.st === 2){
+    const after = fmTotals();
+    commit(before[0] + before[1] < 200 && after[0] + after[1] >= 200 ? 'win' : (c.pts > 0 ? 'fmpts' : 'fmzero'));
+  } else commit(null);
+}
+function rem(){ return Math.max(0, (hostEnd - performance.now()) / 1000); }
+function updHostTimer(){
+  const el = $('hostTimer'); if (!el) return;
+  const tm = S.fm.timer;
+  const left = tm.running ? rem() : tm.left;
+  el.textContent = Math.ceil(left);
+  el.classList.toggle('low', tm.running && left <= 5);
+}
+setInterval(() => {
+  const tm = S.fm.timer;
+  if (tm.running){
+    if (rem() <= 0){ tm.running = false; tm.left = 0; commit(null); } else updHostTimer();
+  }
+}, 100);
+
+$('app').addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b || b.disabled) return;
+  const a = b.dataset.act, t = +b.dataset.t, i = +b.dataset.i;
+  const rd = game.rounds[S.r];
+  switch (a){
+    case 'go': go(b.dataset.w); break;
+    case 'intro': commit('intro'); break;
+    case 'fade': commit('fade'); break;
+    case 'sc': S.teams[t].score += +b.dataset.d; commit(null); break;
+    case 'ctrl': S.ctrl = S.ctrl === t ? null : t; commit(null); break;
+    case 'reveal': {
+      if (!S.revealed[i]){
+        S.revealed[i] = true;
+        if (!S.awarded){ S.bank += rd.answers[i].pnt * rd.multiply; S.banked[i] = true; }
+        commit('reveal');
+      } else {
+        S.revealed[i] = false;
+        if (S.banked[i] && !S.awarded){ S.bank -= rd.answers[i].pnt * rd.multiply; }
+        S.banked[i] = false; commit(null);
+      }
+      break;
+    }
+    case 'revealall': S.revealed = rd.answers.map(() => true); commit('reveal'); break;
+    case 'strike': S.strikes = Math.min(3, S.strikes + 1); commit('strike', S.strikes); break;
+    case 'steal': commit('strike', 1); break;
+    case 'clearstrikes': S.strikes = 0; commit(null); break;
+    case 'award': S.teams[t].score += S.bank; S.bank = 0; S.awarded = true; S.ctrl = t; commit('award'); break;
+    case 'stage': stage(+b.dataset.p, +b.dataset.q); break;
+    case 'fmrep': commit('fmrep'); break;
+    case 'fmhide': S.fm.hideP1 = !S.fm.hideP1; commit(null); break;
+    case 'fmplayer': {
+      S.fm.player = +b.dataset.p; S.fm.hideP1 = S.fm.player === 1;
+      if (!S.fm.timer.running){ S.fm.timer.dur = game.final_round_timers[S.fm.player]; S.fm.timer.left = S.fm.timer.dur; }
+      commit(null); break;
+    }
+    case 'tstart': {
+      const tm = S.fm.timer;
+      if (tm.running){ tm.left = rem(); tm.running = false; }
+      else { if (tm.left <= 0) tm.left = tm.dur; tm.running = true; hostEnd = performance.now() + tm.left * 1000; }
+      commit(null); break;
+    }
+    case 'treset': S.fm.timer.running = false; S.fm.timer.left = S.fm.timer.dur; commit(null); break;
+    case 'fmadd': { const tt = fmTotals(); S.teams[t].score += tt[0] + tt[1]; commit('award'); break; }
+  }
+});
+$('app').addEventListener('input', e => {
+  const el = e.target, k = el.dataset.in; if (!k) return;
+  if (k === 'tname'){ S.teams[+el.dataset.t].name = el.value; softCommit(); }
+  else if (k === 'fmtext'){ S.fm.players[+el.dataset.p].cells[+el.dataset.q].text = el.value; softCommit(); }
+});
+$('app').addEventListener('change', e => {
+  const el = e.target, k = el.dataset.in; if (!k) return;
+  if (k === 'tscore'){ S.teams[+el.dataset.t].score = F.num(el.value); commit(null); }
+  else if (k === 'tname'){ commit(null); }
+  else if (k === 'fmsel'){
+    const c = S.fm.players[+el.dataset.p].cells[+el.dataset.q], sel = +el.value;
+    c.sel = sel; c.pts = sel >= 0 ? game.final_round[+el.dataset.q].answers[sel][1] : 0; commit(null);
+  } else if (k === 'fmpts'){ S.fm.players[+el.dataset.p].cells[+el.dataset.q].pts = F.num(el.value); commit(null); }
+  else if (k === 'fmtext'){ commit(null); }
+});
+document.addEventListener('keydown', e => {
+  if (/INPUT|SELECT|TEXTAREA/.test(e.target.tagName) || $('modal').classList.contains('on')) return;
+  if (S.view !== 'round') return;
+  const rd = game.rounds[S.r];
+  if (/^[1-9]$/.test(e.key) && rd.answers[+e.key - 1]){
+    const b = document.querySelector('.ans[data-i="' + (+e.key - 1) + '"]'); if (b) b.click();
+  } else if (e.key === 'x' || e.key === 'X'){
+    const b = document.querySelector('[data-act="strike"]'); if (b && !b.disabled) b.click();
+  }
+});
+
+/* =====================  GAME EDITOR  ===================== */
+function openEditor(){
+  draft = F.clone(game);
+  $('modal').classList.add('on');
+  renderEditor();
+}
+function closeEditor(){ $('modal').classList.remove('on'); draft = null; }
+$('btnEdit').onclick = openEditor;
+
+function sumOf(list, isRound){ return list.reduce((s, a) => s + (isRound ? a.pnt : a[1]), 0); }
+function qCard(kind, i){
+  const isR = kind === 'r', q = isR ? draft.rounds[i] : draft.final_round[i];
+  const rows = q.answers.map((a, j) => `<div class="erow">
+    <input data-e="a" data-k="${kind}" data-i="${i}" data-j="${j}" value="${esc(isR ? a.ans : a[0])}" placeholder="Answer">
+    <input type="number" data-e="p" data-k="${kind}" data-i="${i}" data-j="${j}" value="${isR ? a.pnt : a[1]}" placeholder="Pts">
+    <button class="small" data-ea="delAns" data-k="${kind}" data-i="${i}" data-j="${j}" title="Remove answer">✕</button></div>`).join('');
+  const sum = sumOf(q.answers, isR);
+  return `<div class="ecard"><div class="ehead">
+    <b>${isR ? 'Round ' + (i + 1) : 'Fast Money Q' + (i + 1)}</b>
+    <input class="eq" data-e="q" data-k="${kind}" data-i="${i}" value="${esc(q.question)}" placeholder="Question">
+    ${isR ? `<span class="tip">×</span><input type="number" min="1" style="width:64px" data-e="m" data-k="r" data-i="${i}" value="${q.multiply}" title="Multiplier">` : ''}
+    <button class="small" data-ea="up" data-k="${kind}" data-i="${i}">↑</button><button class="small" data-ea="down" data-k="${kind}" data-i="${i}">↓</button>
+    <button class="small danger" data-ea="delQ" data-k="${kind}" data-i="${i}" title="Delete question">🗑</button></div>
+    ${rows}
+    <div class="btnrow"><button class="small" data-ea="addAns" data-k="${kind}" data-i="${i}" ${q.answers.length >= 8 ? 'disabled title="The board has 8 answer slots"' : ''}>+ Add answer${q.answers.length >= 8 ? ' (max 8)' : ''}</button>
+    <button class="small" data-ea="scale" data-k="${kind}" data-i="${i}">Scale points to 100</button>
+    <span class="sum ${sum === 100 ? 'good' : 'bad'}" data-sum="${kind}${i}">Total: ${sum}${sum === 100 ? ' ✓' : ' (usually 100)'}</span></div></div>`;
+}
+function renderEditor(){
+  $('modal').innerHTML = `<div class="mbox">
+    <h2>Edit game</h2>
+    <div class="ecard"><div class="ehead"><b>Game title</b><input data-e="title" value="${esc(draft.settings.title || '')}">
+      <span class="tip">Fast Money seconds:</span>
+      <input type="number" style="width:70px" data-e="t0" value="${draft.final_round_timers[0]}"><input type="number" style="width:70px" data-e="t1" value="${draft.final_round_timers[1]}"></div></div>
+    <h3>Rounds</h3>${draft.rounds.map((_, i) => qCard('r', i)).join('')}
+    <button data-ea="addQ" data-k="r">+ Add round</button>
+    <h3 style="margin-top:20px">Fast Money questions</h3>${draft.final_round.map((_, i) => qCard('f', i)).join('')}
+    <button data-ea="addQ" data-k="f" ${draft.final_round.length >= 5 ? 'disabled' : ''}>+ Add Fast Money question${draft.final_round.length >= 5 ? ' (max 5)' : ''}</button> <span class="tip">The board shows exactly 8 answer slots per round and 5 Fast Money rows.</span>
+    <h3 style="margin-top:20px">Import / export (same format as famf.app)</h3>
+    <div class="btnrow"><input type="file" id="e-file" accept=".json,application/json" style="width:auto">
+      <button data-ea="toBox">Show JSON ↓</button><button data-ea="fromBox">Load from box ↑</button>
+      <button data-ea="download">Download .json</button><button data-ea="resetDef">Reset to JPCI starter game</button></div>
+    <textarea id="e-json" rows="6" placeholder="Paste a game JSON here and press “Load from box”"></textarea>
+    <div class="footbar"><span class="tip" style="align-self:center">Applying resets the board to the title screen. Scores are kept.</span>
+      <button data-ea="cancel">Cancel</button><button class="gold" data-ea="apply">Apply & save</button></div></div>`;
+  $('e-file').onchange = ev => {
+    const f = ev.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = () => { try { draft = F.normalizeGame(JSON.parse(r.result)); renderEditor(); } catch (err) { alert('Could not read that file: ' + err.message); } };
+    r.readAsText(f);
+  };
+}
+function refreshSums(){
+  document.querySelectorAll('[data-sum]').forEach(el => {
+    const kind = el.dataset.sum[0], i = +el.dataset.sum.slice(1);
+    const q = kind === 'r' ? draft.rounds[i] : draft.final_round[i]; if (!q) return;
+    const s = sumOf(q.answers, kind === 'r');
+    el.textContent = 'Total: ' + s + (s === 100 ? ' ✓' : ' (usually 100)');
+    el.className = 'sum ' + (s === 100 ? 'good' : 'bad');
+  });
+}
+$('modal').addEventListener('input', e => {
+  const el = e.target, k = el.dataset.e; if (!k || !draft) return;
+  const kind = el.dataset.k, i = +el.dataset.i, j = +el.dataset.j;
+  const q = kind === 'r' ? draft.rounds[i] : (kind === 'f' ? draft.final_round[i] : null);
+  if (k === 'title') draft.settings.title = el.value;
+  else if (k === 't0') draft.final_round_timers[0] = Math.max(5, F.num(el.value, 20));
+  else if (k === 't1') draft.final_round_timers[1] = Math.max(5, F.num(el.value, 25));
+  else if (k === 'q') q.question = el.value;
+  else if (k === 'm') q.multiply = Math.max(1, F.num(el.value, 1));
+  else if (k === 'a'){ if (kind === 'r') q.answers[j].ans = el.value; else q.answers[j][0] = el.value; }
+  else if (k === 'p'){ if (kind === 'r') q.answers[j].pnt = F.num(el.value); else q.answers[j][1] = F.num(el.value); refreshSums(); }
+});
+function scaleTo100(q, isR){
+  const v = q.answers.map(a => Math.max(0, isR ? a.pnt : a[1])), T = v.reduce((s, x) => s + x, 0); if (!T) return;
+  const raw = v.map(x => 100 * x / T), fl = raw.map(Math.floor);
+  let left = 100 - fl.reduce((s, x) => s + x, 0);
+  raw.map((r, idx) => [r - Math.floor(r), idx]).sort((a, b) => b[0] - a[0]).forEach(([, idx]) => { if (left > 0){ fl[idx]++; left--; } });
+  q.answers.forEach((a, idx) => { if (isR) a.pnt = fl[idx]; else a[1] = fl[idx]; });
+}
+$('modal').addEventListener('click', e => {
+  const b = e.target.closest('[data-ea]'); if (!b || !draft) return;
+  const a = b.dataset.ea, kind = b.dataset.k, i = +b.dataset.i, j = +b.dataset.j, isR = kind === 'r';
+  const list = isR ? draft.rounds : draft.final_round, q = list[i];
+  switch (a){
+    case 'addAns': if (q.answers.length >= 8) break; q.answers.push(isR ? { ans: '', pnt: 0 } : ['', 0]); renderEditor(); break;
+    case 'delAns': q.answers.splice(j, 1); renderEditor(); break;
+    case 'delQ': if (confirm('Delete this question?')){ list.splice(i, 1); renderEditor(); } break;
+    case 'up': if (i > 0){ list.splice(i - 1, 0, list.splice(i, 1)[0]); renderEditor(); } break;
+    case 'down': if (i < list.length - 1){ list.splice(i + 1, 0, list.splice(i, 1)[0]); renderEditor(); } break;
+    case 'scale': scaleTo100(q, isR); renderEditor(); break;
+    case 'addQ':
+      if (isR) draft.rounds.push({ question: 'New question:', multiply: 1, answers: [{ ans: '', pnt: 0 }] });
+      else if (draft.final_round.length < 5) draft.final_round.push({ question: 'New question:', answers: [['', 0]] });
+      renderEditor(); break;
+    case 'toBox': $('e-json').value = JSON.stringify(draft, null, 1); break;
+    case 'fromBox':
+      try { draft = F.normalizeGame(JSON.parse($('e-json').value)); renderEditor(); }
+      catch (err) { alert('That JSON could not be read: ' + err.message); }
+      break;
+    case 'download': {
+      const blob = new Blob([JSON.stringify(draft, null, 1)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob), l = document.createElement('a');
+      l.href = url; l.download = 'family-feud-game.json'; document.body.appendChild(l); l.click(); l.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000); break;
+    }
+    case 'resetDef': if (confirm('Replace the editor contents with the JPCI starter game?')){ draft = F.normalizeGame(F.DEFAULT_GAME); renderEditor(); } break;
+    case 'cancel': closeEditor(); break;
+    case 'apply': {
+      const clean = F.normalizeGame(draft);
+      const bad = [];
+      clean.rounds.forEach((r, n) => { r.answers = r.answers.filter(x => x.ans.trim()); if (!r.question.trim() || !r.answers.length) bad.push('Round ' + (n + 1)); });
+      clean.final_round.forEach((r, n) => { r.answers = r.answers.filter(x => x[0].trim()); if (!r.question.trim() || !r.answers.length) bad.push('Fast Money Q' + (n + 1)); });
+      if (bad.length){ alert('Please give each question some text and at least one answer: ' + bad.join(', ')); break; }
+      if (!clean.rounds.length || !clean.final_round.length){ alert('You need at least one round and one Fast Money question.'); break; }
+      game = clean; F.saveGame(game);
+      S = F.newState(game, S); closeEditor(); commit('intro');
+      break;
+    }
+  }
+});
+
+/* ---------- go ---------- */
+if (!S.banked) S.banked = [];
+render();
+sync.send(S);
+})();
+</script>
+</body>
+</html>

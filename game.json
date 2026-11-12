@@ -1,0 +1,287 @@
+{
+ "settings": {
+  "theme": "default",
+  "title": "JPCI Family Feud"
+ },
+ "rounds": [
+  {
+   "question": "Name something students blame when they fail a test:",
+   "answers": [
+    {
+     "ans": "The Teacher",
+     "pnt": 69
+    },
+    {
+     "ans": "Lack of Sleep",
+     "pnt": 11
+    },
+    {
+     "ans": "Not Enough Time",
+     "pnt": 10
+    },
+    {
+     "ans": "Not Studying",
+     "pnt": 10
+    }
+   ],
+   "multiply": 1
+  },
+  {
+   "question": "Name something students always lose or leave behind in class:",
+   "answers": [
+    {
+     "ans": "Pencil / Pen",
+     "pnt": 66
+    },
+    {
+     "ans": "Water Bottle",
+     "pnt": 16
+    },
+    {
+     "ans": "Phones / Chargers",
+     "pnt": 13
+    },
+    {
+     "ans": "Textbook / Notebook",
+     "pnt": 5
+    }
+   ],
+   "multiply": 2
+  },
+  {
+   "question": "Name something teachers complain about the most:",
+   "answers": [
+    {
+     "ans": "Phones",
+     "pnt": 33
+    },
+    {
+     "ans": "Noisy Students",
+     "pnt": 31
+    },
+    {
+     "ans": "Students",
+     "pnt": 14
+    },
+    {
+     "ans": "Not Doing Work",
+     "pnt": 11
+    },
+    {
+     "ans": "Pay / Money",
+     "pnt": 7
+    },
+    {
+     "ans": "Paperwork",
+     "pnt": 4
+    }
+   ],
+   "multiply": 3
+  },
+  {
+   "question": "If there was a zombie apocalypse which classroom would be the best to hide in?",
+   "answers": [
+    {
+     "ans": "Shop 4 (Essabhai)",
+     "pnt": 26
+    },
+    {
+     "ans": "Auto Shop (Cole)",
+     "pnt": 21
+    },
+    {
+     "ans": "S-6 Math Room",
+     "pnt": 19
+    },
+    {
+     "ans": "Cooking Room",
+     "pnt": 14
+    },
+    {
+     "ans": "S-5 Computer Tech",
+     "pnt": 10
+    },
+    {
+     "ans": "Lecture Room",
+     "pnt": 5
+    },
+    {
+     "ans": "French Room 121",
+     "pnt": 5
+    }
+   ],
+   "multiply": 4
+  }
+ ],
+ "final_round": [
+  {
+   "question": "Name the best item in the snack program:",
+   "answers": [
+    [
+     "Apple Sauce",
+     21
+    ],
+    [
+     "Fruit / Oranges",
+     18
+    ],
+    [
+     "Yogurt",
+     14
+    ],
+    [
+     "Crackers",
+     14
+    ],
+    [
+     "Cheese Strings",
+     12
+    ],
+    [
+     "Muffin / Bread",
+     12
+    ],
+    [
+     "Granola Bars",
+     9
+    ]
+   ]
+  },
+  {
+   "question": "Name the best place to get lunch:",
+   "answers": [
+    [
+     "KFC",
+     25
+    ],
+    [
+     "Asian Gourmet",
+     19
+    ],
+    [
+     "Pizza",
+     18
+    ],
+    [
+     "Fortinos",
+     16
+    ],
+    [
+     "Tim Hortons",
+     12
+    ],
+    [
+     "Chipotle",
+     5
+    ],
+    [
+     "Lawrence Mall",
+     5
+    ]
+   ]
+  },
+  {
+   "question": "Name a common gift teachers receive from students:",
+   "answers": [
+    [
+     "Chocolate / Candy",
+     36
+    ],
+    [
+     "Gift Cards",
+     20
+    ],
+    [
+     "Apples",
+     12
+    ],
+    [
+     "Food",
+     9
+    ],
+    [
+     "Mugs",
+     9
+    ],
+    [
+     "Homework",
+     9
+    ],
+    [
+     "Cards / Letters",
+     5
+    ]
+   ]
+  },
+  {
+   "question": "Name something you would find on a teacher's desk:",
+   "answers": [
+    [
+     "Computer / Laptop",
+     28
+    ],
+    [
+     "Papers / Tests",
+     26
+    ],
+    [
+     "Pen / Pencil",
+     15
+    ],
+    [
+     "Stapler",
+     15
+    ],
+    [
+     "Apple",
+     6
+    ],
+    [
+     "Coffee",
+     5
+    ],
+    [
+     "Water Bottle",
+     5
+    ]
+   ]
+  },
+  {
+   "question": "Name an item a student brings to school every day but never uses:",
+   "answers": [
+    [
+     "Pencil / Pen",
+     27
+    ],
+    [
+     "Notebook / Textbook",
+     23
+    ],
+    [
+     "Ruler / Protractor",
+     17
+    ],
+    [
+     "Brain",
+     14
+    ],
+    [
+     "Student ID",
+     7
+    ],
+    [
+     "Chromebook",
+     6
+    ],
+    [
+     "Backpack / Bag",
+     6
+    ]
+   ]
+  }
+ ],
+ "final_round_timers": [
+  20,
+  25
+ ]
+}

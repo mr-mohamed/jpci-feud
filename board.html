@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Family Feud – Board</title>
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#05062e;color:#fff;font-family:'Oswald','Arial Narrow','Arial Black',Impact,sans-serif;user-select:none}
+:root{--gold:#ffd23f;--gold2:#e8a600;--led:'Orbitron','Courier New',monospace;--red:#e11d48;
+  --slot:linear-gradient(#4a78f0 0%,#1c47c9 45%,#0d2a96 100%);--slotb:#a8c0ff;--navy:#050f48}
+#stage{position:fixed;inset:0;background:
+  radial-gradient(circle at 50% 45%,#2f35b8 0%,#171c78 45%,#080a3f 100%);overflow:hidden}
+/* twinkling background lights */
+#stage:before{content:"";position:absolute;inset:0;opacity:.22;
+  background:radial-gradient(circle,#fff 0 1.2px,transparent 2px) 0 0/5.5vh 5.5vh,radial-gradient(circle,#ffe27a 0 1.2px,transparent 2px) 2.7vh 2.7vh/5.5vh 5.5vh;
+}
+.view{position:absolute;inset:0;display:none;align-items:center;justify-content:center;padding:2vh 2vw}
+body[data-view=title] #title-view,body[data-view=round] #round-view,body[data-view=fm] #fm-view,body[data-view=end] #end-view{display:flex}
+
+/* ---- 3-column layout: score | board | score ---- */
+.col{display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:1.4vh;width:100%;height:100%}
+.rtop{flex:none;display:flex;align-items:center;justify-content:center;gap:2vw;height:10vh}
+.rmid{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;width:100%}
+.rbot{flex:none;display:flex;align-items:flex-end;justify-content:space-between;width:100%;gap:2vw}
+.side{display:flex;flex-direction:column;align-items:center;gap:.8vh;position:relative;width:24vw}
+.side .nm{width:100%;max-width:25vw;text-align:center;background:var(--slot);border:.35vh solid var(--slotb);border-radius:1.2vh;font-weight:700;font-size:2.9vh;text-transform:uppercase;padding:.5vh 1vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.1vh;text-shadow:0 .2vh .3vh #000a}
+.side .sc{width:100%;max-width:25vw;text-align:center;background:#02062a;border:.6vh solid var(--gold);border-radius:1.6vh;font-family:var(--led);font-weight:900;font-size:7.2vh;line-height:1.15;color:var(--gold);text-shadow:0 0 1.6vh #ffb300aa;padding:.5vh 0;box-shadow:inset 0 0 3vh #000}
+.side.ctrl .sc{box-shadow:0 0 4vh #ffd23f,inset 0 0 3vh #000}
+.side.ctrl .nm:before{content:"▶ ";color:var(--gold)}
+.side.win .sc{animation:glow .7s infinite alternate;background:#2a2000}
+@keyframes glow{to{box-shadow:0 0 6vh #ffd23f,inset 0 0 3vh #000}}
+
+/* ---- the board ---- */
+.frame{position:relative;width:93vw;padding:2.2vh;border-radius:3.6vh;background:
+  radial-gradient(circle,#fff7b8 0 18%,#ffd23f 20% 42%,#7a5200 46%,transparent 52%) 0 0/3vh 3vh,#2a1c00;
+  box-shadow:0 0 5vh #000c}
+.board{position:relative;border-radius:2.2vh;background:linear-gradient(#0b1a7a,#050f48);border:.7vh solid var(--gold);padding:1.8vh 1.6vw 1.6vh;display:flex;flex-direction:column;gap:1.5vh;height:57vh}
+.qbox{flex:none;display:flex;align-items:center;justify-content:center;text-align:center;min-height:10.5vh;padding:.6vh 1.4vw;background:linear-gradient(#0c2dbb,#071a85);border:.5vh solid var(--gold);border-radius:1.4vh;font-weight:700;font-size:3.5vh;line-height:1.15;text-transform:uppercase;color:#ffe27a;text-shadow:0 .25vh .4vh #000}
+.slots{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(4,1fr);grid-auto-flow:column;gap:1.5vh 1.2vw;min-height:0}
+.slot{perspective:90vh;min-height:0}
+.slot .inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.3,1.3,.5,1)}
+.slot.revealed .inner{transform:rotateX(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:1vh;border:.35vh solid var(--slotb);display:flex;align-items:center;background:var(--slot);box-shadow:inset 0 .4vh .6vh #fff5,inset 0 -.5vh .8vh #0006}
+.front{justify-content:center}
+.front .n{min-width:8.5vh;height:6.2vh;border-radius:99px;background:linear-gradient(#0a1c80,#040b45);border:.3vh solid #8ea8ff;font-family:var(--led);font-weight:900;font-size:3.8vh;color:#fff;display:flex;align-items:center;justify-content:center}
+.back{transform:rotateX(180deg);padding:0 0 0 1.2vw;justify-content:space-between;gap:.8vw}
+.back .a{flex:1;min-width:0;font-weight:700;font-size:4.2vh;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 .2vh .3vh #000a;letter-spacing:.05vh}
+.back .p{align-self:stretch;display:flex;align-items:center;justify-content:center;min-width:8.6vh;margin:.5vh .5vh .5vh 0;background:linear-gradient(#0a1c80,#040b45);border:.3vh solid #8ea8ff;border-radius:.8vh;font-family:var(--led);font-weight:900;font-size:4.2vh;color:#fff;padding:0 1vh}
+.slot.empty .face{background:linear-gradient(#142a8e,#0a1860);border-color:#4a63c9;box-shadow:inset 0 0 1.6vh #000a}
+.slot.empty .face:after{content:"";position:absolute;right:.5vh;top:.5vh;bottom:.5vh;width:8.6vh;border-radius:.8vh;background:#06104d;border:.3vh solid #3a52b8}
+.slot.empty .front .n{display:none}
+.bottom{flex:none;display:flex;align-items:center;justify-content:space-between;height:9.5vh}
+.mult{font-family:var(--led);font-weight:900;font-size:4vh;background:linear-gradient(var(--gold),var(--gold2));color:#1a1200;border-radius:99px;padding:.6vh 1.6vw;min-width:9vh;text-align:center}
+.mult.one{visibility:hidden}
+.bank{display:flex;align-items:center;gap:1vw;background:#02062a;border:.5vh solid var(--gold);border-radius:1.4vh;padding:.4vh 1.6vw}
+.bank .lbl{font-size:2.6vh;color:#cfe0ff;font-weight:700;letter-spacing:.2vh}
+.bank .val{font-family:var(--led);font-weight:900;font-size:6.2vh;color:var(--gold);min-width:12vh;text-align:center;text-shadow:0 0 1.2vh #ffb30099}
+.sxs{display:flex;gap:.6vw}
+.sxs{align-self:center}
+.sxs img{height:11vh;opacity:.18;filter:grayscale(.6);transition:all .2s}
+.sxs img.on{opacity:1;filter:none}
+
+/* ---- title / end ---- */
+.logo{width:100%;max-height:58vh;object-fit:contain;filter:drop-shadow(0 1vh 2vh #000c)}
+.titlecenter{display:flex;flex-direction:column;align-items:center;gap:2vh;text-align:center}
+.bigtxt{font-weight:700;font-size:7vh;color:var(--gold);text-shadow:0 .6vh 0 #8a5a00,0 0 3vh #ffb300aa;text-transform:uppercase}
+
+/* ---- fast money ---- */
+.fmwrap{width:min(90vw,165vh);display:flex;flex-direction:column}
+.fmwrap .frame{width:auto}
+.fm-board{height:auto;min-height:84vh}
+.fm-head{display:flex;align-items:center;justify-content:space-between;height:11vh;flex:none}
+.fm-head h1{font-size:7vh;color:var(--gold);text-shadow:0 .5vh 0 #8a5a00,0 0 3vh #ffb300aa;text-transform:uppercase;letter-spacing:.3vh}
+.fm-timer{font-family:var(--led);font-weight:900;font-size:8.6vh;color:#fff;background:#02062a;border:.5vh solid #8ea8ff;border-radius:1.6vh;min-width:17vh;text-align:center;line-height:1.2;transition:all .2s}
+.fm-timer.run{border-color:var(--gold);color:var(--gold)}
+.fm-timer.low{border-color:var(--red);color:#ff6b8a;animation:pulse .5s infinite alternate}
+@keyframes pulse{to{transform:scale(1.07)}}
+.fm-cols{display:flex;gap:2vw;font-size:2.8vh;color:#cfe0ff;text-align:center;font-weight:700;flex:none}
+.fm-cols div{flex:1;padding:.3vh;border-radius:.8vh;transition:all .3s}
+.fm-cols div.act{color:#1a1200;background:var(--gold)}
+.fm-grid{flex:1;display:grid;grid-template-rows:repeat(5,1fr);gap:1.3vh;min-height:0}
+.fm-row{display:flex;gap:1.6vw;min-height:0}
+.fm-side{flex:1;display:flex;gap:.6vw;min-height:0}
+.fm-side.r{flex-direction:row-reverse}
+.fc{display:flex;align-items:center;justify-content:center;border-radius:1vh;border:.35vh solid var(--slotb);background:var(--slot);overflow:hidden;box-shadow:inset 0 .4vh .6vh #fff5,inset 0 -.5vh .8vh #0006}
+.fc.ans{flex:1;padding:0 1vw}
+.fc.pts{width:11vh;font-family:var(--led);font-weight:900;font-size:4.4vh;background:linear-gradient(#0a1c80,#040b45)}
+.fc span{opacity:0;transform:scale(.6);transition:all .3s cubic-bezier(.3,1.5,.5,1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.fc.show span{opacity:1;transform:none}
+.fc.ans span{transition:none;transform:none;font-weight:700;font-size:3.7vh;text-transform:uppercase;text-shadow:0 .2vh .3vh #000a}
+.fc.cover span{visibility:hidden}
+.fc.cover{background:linear-gradient(#142a8e,#0a1860);border-color:#4a63c9}
+.fm-foot{display:flex;align-items:center;justify-content:center;gap:2vw;height:13vh;margin-top:1.2vh;flex:none}
+.fm-tot{flex:1;text-align:center;font-size:2.6vh;color:#cfe0ff;font-weight:700}
+.fm-tot b{display:block;font-family:var(--led);font-size:5.6vh;color:var(--gold)}
+.fm-grand{flex:none;text-align:center;padding:.6vh 3vw;border:.5vh solid var(--gold);border-radius:1.4vh;background:#02062a}
+.fm-grand .l{font-size:2.3vh;color:#cfe0ff;font-weight:700}
+.fm-grand .v{font-family:var(--led);font-weight:900;font-size:6.6vh;color:var(--gold);line-height:1.1}
+.fm-grand.won{animation:glow 1s infinite alternate}
+
+/* ---- overlays ---- */
+#bigx{position:fixed;inset:0;display:none;align-items:center;justify-content:center;gap:1.6vw;z-index:20;background:#0000006e;pointer-events:none}
+#bigx.on{display:flex}
+#bigx img{height:44vh;filter:drop-shadow(0 1vh 3vh #000);animation:pop .3s cubic-bezier(.3,1.6,.5,1)}
+@keyframes pop{from{transform:scale(.2);opacity:0}}
+#wait{position:fixed;inset:0;z-index:30;background:#05062ef2;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2vh;padding:4vh}
+#wait.hide{display:none}
+#wait img{max-height:30vh;max-width:70vw}
+#wait p{font-size:2.8vh;color:#cfe0ff;font-family:system-ui,sans-serif;font-weight:600}
+#wait .code{font-family:var(--led);font-size:8vh;letter-spacing:1.4vh;color:#fff}
+#wait input{font:700 4vh var(--led);text-align:center;text-transform:uppercase;width:30vh;padding:1vh;border-radius:1vh;border:.4vh solid #5b7cff;background:#0a1566;color:#fff;letter-spacing:.8vh}
+#wait button{font:700 3vh system-ui,sans-serif;padding:1.2vh 3vh;border-radius:1vh;border:0;background:var(--gold);color:#1a1200;cursor:pointer}
+#hint{transition:opacity .6s;position:fixed;right:1.4vw;bottom:1.2vh;z-index:25;font:600 1.8vh system-ui,sans-serif;color:#9fb3ff;opacity:.9;display:flex;gap:1vw;align-items:center}
+#hint button{font:600 1.8vh system-ui,sans-serif;background:#ffffff22;color:#fff;border:1px solid #ffffff55;border-radius:6px;padding:.4vh 1vh;cursor:pointer}
+#hint .dot{width:1.3vh;height:1.3vh;border-radius:50%;background:#f59e0b}
+#hint .dot.ok{background:#22c55e}
+body.idle #hint{opacity:0}
+body.idle{cursor:none}
+</style>
+</head>
+<body data-view="title">
+<div id="stage">
+  <div class="view" id="title-view"></div>
+  <div class="view" id="round-view"></div>
+  <div class="view" id="fm-view"></div>
+  <div class="view" id="end-view"></div>
+</div>
+<div id="bigx"></div>
+<div id="wait">
+  <img src="logo.png" alt="Family Feud">
+  <p id="waitMsg">Waiting for the host…</p>
+  <div class="code" id="waitCode"></div>
+  <p>Enter the room code shown on the host screen</p>
+  <div><input id="codeIn" maxlength="4" placeholder="CODE" autocomplete="off"> <button id="codeGo">Connect</button></div>
+</div>
+<div id="hint"><span class="dot" id="dot"></span><span id="hintTxt">Click anywhere to enable sound</span><button id="fsBtn">⛶ Fullscreen (F)</button></div>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="feud.js"></script>
+<script>
+(function(){
+  var F = Feud, esc = F.esc, Snd = F.Snd;
+  var S = null, lastEv = null, builtKey = '', timerEnd = 0, timerRun = false, timeupDone = false, lastTick = -1;
+  var params = new URLSearchParams(location.search);
+  var code = (params.get('code') || localStorage.getItem('jpciFeud.boardCode') || '').toUpperCase();
+  var started = false;
+  function $(id){ return document.getElementById(id); }
+
+  /* ---------- connect / wait screen ---------- */
+  function begin(c){
+    code = c.toUpperCase().replace(/[^A-Z0-9]/g,'');
+    if (code.length < 4) return;
+    try { localStorage.setItem('jpciFeud.boardCode', code); } catch(e){}
+    $('waitCode').textContent = code;
+    $('waitMsg').textContent = 'Connecting to host…';
+    if (!started){ started = true; F.startBoardSync(code, onState, onStatus); }
+    else { location.href = 'board.html?code=' + code; }
+  }
+  $('codeGo').onclick = function(){ begin($('codeIn').value); };
+  $('codeIn').onkeydown = function(e){ if (e.key === 'Enter') begin($('codeIn').value); };
+  if (code.length === 4) begin(code);
+  else {
+    $('waitMsg').textContent = 'Not connected yet';
+    // served by the offline local server? then no code is needed
+    fetch('api/ping', { cache: 'no-store' }).then(function(r){ return r.ok ? r.json() : null; }).then(function(j){ if (j && j.ok && !started) begin('LAN0'); }).catch(function(){});
+  }
+
+  function onStatus(st){
+    $('dot').className = 'dot' + (st.connected ? ' ok' : '');
+    if (!st.connected){
+      $('wait').classList.remove('hide');
+      $('waitMsg').textContent = st.peerReady || st.lan ? 'Looking for the host…' : 'Connecting…';
+    }
+    $('hintTxt').textContent = Snd.ready() ? (st.connected ? 'Connected' : 'Waiting for host') : 'Click anywhere to enable sound';
+  }
+  document.addEventListener('click', function(){ Snd.enable(); $('hintTxt').textContent = $('dot').classList.contains('ok') ? 'Connected' : 'Waiting for host'; });
+  var idleT; function wake(){ document.body.classList.remove('idle'); clearTimeout(idleT); idleT = setTimeout(function(){ if (S) document.body.classList.add('idle'); }, 4000); }
+  document.addEventListener('mousemove', wake); wake();
+  document.addEventListener('keydown', function(e){ if (e.key === 'f' || e.key === 'F') toggleFS(); });
+  function toggleFS(){
+    if (document.fullscreenElement) document.exitFullscreen();
+    else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(function(){});
+  }
+  $('fsBtn').onclick = function(e){ e.stopPropagation(); Snd.enable(); toggleFS(); };
+
+  /* ---------- state received ---------- */
+  function onState(s){
+    var first = (S === null);
+    S = s;
+    $('wait').classList.add('hide');
+    document.body.setAttribute('data-view', s.view);
+    document.title = (s.game.settings.title || 'Family Feud') + ' – Board';
+    if (s.view === 'round') renderRound(s);
+    else if (s.view === 'fm') renderFM(s);
+    else if (s.view === 'end') renderEnd(s);
+    else renderTitle(s);
+    if (first || !lastEv || lastEv.sid !== s.sid) { lastEv = { sid: s.sid, n: s.ev.n }; }
+    else if (s.ev.n !== lastEv.n){ lastEv.n = s.ev.n; handleEvent(s.ev); }
+    syncTimer(s);
+  }
+  function handleEvent(ev){
+    switch (ev.type){
+      case 'strike': Snd.play('strike'); showX(ev.x || 1); break;
+      case 'reveal': Snd.play('reveal'); break;
+      case 'award': Snd.play('award'); break;
+      case 'round': Snd.play('round'); break;
+      case 'intro': Snd.play('intro'); break;
+      case 'fade': Snd.fadeOut(2200); break;
+      case 'fmans': Snd.play('fmans'); break;
+      case 'fmpts': Snd.play('fmpts'); break;
+      case 'fmzero': Snd.play('strike'); break;
+      case 'fmrep': Snd.play('fmrep'); break;
+      case 'win': Snd.play('win'); break;
+    }
+  }
+  var xTimer = null;
+  function showX(n){
+    var h = ''; for (var i = 0; i < n; i++) h += '<img src="strike-x.png" alt="X">';
+    $('bigx').innerHTML = h; $('bigx').classList.add('on');
+    clearTimeout(xTimer); xTimer = setTimeout(function(){ $('bigx').classList.remove('on'); }, 1700);
+  }
+
+  /* ---------- shared bits ---------- */
+  function sideHTML(s, i, extra){
+    var t = s.teams[i];
+    return '<div class="side t' + i + (extra || '') + '"><div class="nm">' + esc(t.name) + '</div><div class="sc">' + t.score + '</div></div>';
+  }
+  function updSides(root, s){
+    [0,1].forEach(function(i){
+      var el = root.querySelector('.side.t' + i); if (!el) return;
+      el.querySelector('.nm').textContent = s.teams[i].name;
+      el.querySelector('.sc').textContent = s.teams[i].score;
+      el.classList.toggle('ctrl', s.ctrl === i && s.view === 'round');
+    });
+  }
+
+  /* ---------- title ---------- */
+  function renderTitle(s){
+    var root = $('title-view'), key = 'title';
+    if (builtKey !== key){
+      builtKey = key;
+      root.innerHTML = '<div class="col"><div class="rmid"><img class="logo" style="max-height:70vh" src="logo.png" alt="Family Feud"></div><div class="rbot">' + sideHTML(s,0) + sideHTML(s,1) + '</div></div>';
+    }
+    updSides(root, s);
+  }
+
+  /* ---------- round: always 8 slots (2 columns x 4) ---------- */
+  var MAXSLOTS = 8;
+  function renderRound(s){
+    var rd = s.game.rounds[s.r];
+    var root = $('round-view');
+    if (!rd){ root.innerHTML = ''; builtKey = ''; return; }
+    var key = 'round|' + s.r + '|' + JSON.stringify(rd);
+    if (builtKey !== key){
+      builtKey = key;
+      var slots = '';
+      for (var i = 0; i < MAXSLOTS; i++){
+        var a = rd.answers[i];
+        if (a){
+          slots += '<div class="slot" data-i="' + i + '"><div class="inner"><div class="face front"><div class="n">' + (i+1) + '</div></div>' +
+            '<div class="face back"><div class="a">' + esc(a.ans) + '</div><div class="p">' + a.pnt + '</div></div></div></div>';
+        } else {
+          slots += '<div class="slot empty"><div class="inner"><div class="face front"><div class="n"></div></div><div class="face back"></div></div></div>';
+        }
+      }
+      root.innerHTML = '<div class="col">' +
+        '<div class="rtop"><div class="mult' + (rd.multiply > 1 ? '' : ' one') + '">×' + rd.multiply + '</div>' +
+        '<div class="bank"><span class="lbl">TOTAL</span><span class="val" id="bankV">0</span></div>' +
+        '<div class="mult one">×' + rd.multiply + '</div></div>' +
+        '<div class="frame"><div class="board"><div class="qbox">' + esc(rd.question) + '</div>' +
+        '<div class="slots">' + slots + '</div></div></div>' +
+        '<div class="rbot">' + sideHTML(s,0) +
+        '<div class="sxs"><img src="strike-x.png" alt=""><img src="strike-x.png" alt=""><img src="strike-x.png" alt=""></div>' +
+        sideHTML(s,1) + '</div></div>';
+      fitAll(root, '.back .a');
+    }
+    root.querySelectorAll('.slot[data-i]').forEach(function(el){
+      el.classList.toggle('revealed', !!s.revealed[+el.dataset.i]);
+    });
+    $('bankV').textContent = s.bank;
+    root.querySelectorAll('.sxs img').forEach(function(el, i){ el.classList.toggle('on', i < s.strikes); });
+    updSides(root, s);
+  }
+
+  /* ---------- text fitting + typing ---------- */
+  function fitOne(el){
+    el.style.fontSize = '';
+    var box = el.classList.contains('a') ? el : el.parentNode, n = 0;
+    var base = parseFloat(getComputedStyle(el).fontSize), f = base;
+    while (n++ < 14 && el.scrollWidth > (box === el ? el.clientWidth : box.clientWidth - 2 * parseFloat(getComputedStyle(box).paddingLeft)) + 1){ f *= 0.93; el.style.fontSize = f + 'px'; }
+  }
+  function fitAll(root, sel){ requestAnimationFrame(function(){ root.querySelectorAll(sel).forEach(fitOne); }); }
+  window.addEventListener('resize', function(){ fitAll(document, '.back .a'); fitAll(document, '.fc.ans span'); });
+  var fmShown = {}, fmTyping = {}, fmFirst = true;
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ fitAll(document, '.back .a'); fitAll(document, '.fc.ans span'); });
+  function stopType(k){ if (fmTyping[k]){ clearInterval(fmTyping[k].iv); delete fmTyping[k]; } }
+  function typeInto(sp, label, k){   // letters appear one at a time; whole answer takes about as long as the reveal sound
+    stopType(k);
+    sp.textContent = label; fitOne(sp);            // size for the full text first
+    var i = 0, step = Math.max(18, Math.min(60, 320 / Math.max(1, label.length)));
+    sp.textContent = '';
+    var iv = setInterval(function(){
+      i++; sp.textContent = label.slice(0, i);
+      if (i >= label.length) stopType(k);
+    }, step);
+    fmTyping[k] = { iv: iv, label: label };
+  }
+
+  /* ---------- fast money (always 5 rows) ---------- */
+  function renderFM(s){
+    var qs = s.game.final_round, root = $('fm-view'), key = 'fm';
+    if (builtKey !== key){
+      builtKey = key; fmShown = {}; fmFirst = true;
+      var rows = '';
+      for (var i = 0; i < 5; i++){
+        rows += '<div class="fm-row" data-q="' + i + '">' +
+          '<div class="fm-side l"><div class="fc ans" data-p="0"><span></span></div><div class="fc pts" data-p="0"><span></span></div></div>' +
+          '<div class="fm-side r"><div class="fc ans" data-p="1"><span></span></div><div class="fc pts" data-p="1"><span></span></div></div></div>';
+      }
+      root.innerHTML = '<div class="fmwrap"><div class="frame"><div class="board fm-board">' +
+        '<div class="fm-head"><h1>Fast Money</h1><div class="fm-timer" id="fmT">--</div></div>' +
+        '<div class="fm-cols"><div id="c0">PLAYER 1</div><div id="c1">PLAYER 2</div></div>' +
+        '<div class="fm-grid">' + rows + '</div>' +
+        '<div class="fm-foot"><div class="fm-grand" id="grand"><div class="l">TOTAL · NEED 200</div><div class="v" id="grandV">0</div></div></div>' +
+        '</div></div></div>';
+    }
+    var tot = [0,0];
+    [0,1].forEach(function(p){
+      s.fm.players[p].cells.forEach(function(c, q){
+        var row = root.querySelector('.fm-row[data-q="' + q + '"]'); if (!row) return;
+        var ans = row.querySelector('.fc.ans[data-p="' + p + '"]'), pts = row.querySelector('.fc.pts[data-p="' + p + '"]');
+        var label = c.text || (c.sel >= 0 && qs[q] && qs[q].answers[c.sel] ? qs[q].answers[c.sel][0] : '');
+        var cover = p === 0 && !!s.fm.hideP1, sp = ans.querySelector('span'), k = p + '-' + q;
+        var was = !!fmShown[k], now = c.st >= 1;
+        fmShown[k] = now;
+        if (now && !was && !fmFirst && !cover) typeInto(sp, label, k);
+        else if (!fmTyping[k] || !now || fmTyping[k].label !== label){ stopType(k); sp.textContent = label; fitOne(sp); }
+        pts.querySelector('span').textContent = c.pts;
+        ans.classList.toggle('show', now);
+        pts.classList.toggle('show', c.st >= 2);
+        ans.classList.toggle('cover', cover); pts.classList.toggle('cover', cover);
+        if (c.st >= 2) tot[p] += c.pts;
+      });
+    });
+    fmFirst = false;
+    var g = tot[0] + tot[1];
+    $('grandV').textContent = g;
+    $('grand').classList.toggle('won', g >= 200);
+    $('c0').classList.toggle('act', s.fm.player === 0);
+    $('c1').classList.toggle('act', s.fm.player === 1);
+  }
+
+  /* ---------- timer (each screen counts down on its own; host only says start / pause / reset) ---------- */
+  function syncTimer(s){
+    var t = s.fm.timer;
+    timerRun = !!t.running;
+    if (timerRun){ timerEnd = performance.now() + t.left * 1000; timeupDone = false; lastTick = -1; }
+    else { timeupDone = (t.left <= 0); }
+    drawTimer(s);
+  }
+  function drawTimer(s){
+    s = s || S; if (!s) return;
+    var el = $('fmT'); if (!el) return;
+    var t = s.fm.timer, left = t.left;
+    if (timerRun){
+      left = Math.max(0, (timerEnd - performance.now()) / 1000);
+      var sec = Math.ceil(left);
+      if (sec <= 5 && sec > 0 && sec !== lastTick){ lastTick = sec; Snd.play('tick'); }
+      if (left <= 0 && !timeupDone){ timeupDone = true; timerRun = false; Snd.play('timeup'); }
+    }
+    el.textContent = Math.ceil(left);
+    el.classList.toggle('run', timerRun);
+    el.classList.toggle('low', timerRun && left <= 5);
+  }
+  setInterval(function(){ if (S && S.view === 'fm') drawTimer(S); }, 100);
+
+  /* ---------- end ---------- */
+  function renderEnd(s){
+    var root = $('end-view');
+    var a = s.teams[0].score, b = s.teams[1].score;
+    var key = 'end|' + a + '|' + b + '|' + s.teams[0].name + s.teams[1].name;
+    if (builtKey !== key){
+      builtKey = key;
+      var w = a === b ? -1 : (a > b ? 0 : 1);
+      root.innerHTML = '<div class="col"><div class="rmid"><div class="titlecenter"><img class="logo" style="max-height:44vh" src="logo.png" alt=""><div class="bigtxt">' + (w < 0 ? "It's a tie!" : esc(s.teams[w].name) + ' wins!') + '</div></div></div>' +
+        '<div class="rbot">' + sideHTML(s,0, w === 0 ? ' win' : '') + sideHTML(s,1, w === 1 ? ' win' : '') + '</div></div>';
+    }
+  }
+})();
+</script>
+</body>
+</html>
