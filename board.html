@@ -173,7 +173,13 @@ body.idle{cursor:none}
     $('dot').className = 'dot' + (st.connected ? ' ok' : '');
     if (!st.connected){
       $('wait').classList.remove('hide');
-      $('waitMsg').textContent = st.peerReady || st.lan ? 'Looking for the host…' : 'Connecting…';
+      var M = { nolib: 'This computer could not load the connection library (unpkg.com is blocked or there is no internet).',
+        signal: 'Connecting to the meeting server… (if this stays, this network blocks peerjs.com)',
+        dialing: 'Found the server – calling the host…',
+        nohost: 'No host found with code ' + code + '. Check the code and keep host.html open on the host computer.',
+        blocked: 'Host found, but this network is blocking the direct connection between the two computers.',
+        open: 'Connected – waiting for the game…' };
+      $('waitMsg').textContent = st.lan ? 'Looking for the host…' : (M[st.why] || 'Connecting…');
     }
     $('hintTxt').textContent = Snd.ready() ? (st.connected ? 'Connected' : 'Waiting for host') : 'Click anywhere to enable sound';
   }

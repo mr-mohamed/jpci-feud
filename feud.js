@@ -226,7 +226,7 @@
       peer.on('disconnected', function () { peerState = 'connecting'; status(); try { peer.reconnect(); } catch (e) { /* ignore */ } });
       peer.on('connection', function (c) {
         conns.push(c);
-        c.on('open', function () { c.send({ t: 'state', s: getState() }); status(); });
+        c.on('open', function () { c.send({ t: 'state', s: getState() }); setTimeout(function () { if (c.open) { try { c.send({ t: 'state', s: getState() }); } catch (e) { /* ignore */ } } }, 1500); status(); });
         c.on('close', function () { conns = conns.filter(function (x) { return x !== c; }); status(); });
         c.on('error', function () { });
       });
@@ -246,7 +246,7 @@
 
   // BOARD side: receive state from host.
   function startBoardSync(code, onState, onStatus) {
-    var peer = null, conn = null, lastSid = null, lastV = -1, got = false, bcOk = false;
+    var peer = null, conn = null, connAt = 0, why = (typeof Peer === 'undefined') ? 'nolib' : 'signal', lastSid = null, lastV = -1, got = false, bcOk = false;
     function apply(s) {
       if (!s) return;
       if (s.sid === lastSid && s.v <= lastV) return;
@@ -254,7 +254,7 @@
       onState(s); st();
     }
     var lanOn = false;
-    function st() { onStatus({ connected: got, peerReady: !!(peer && peer.open), lan: lanOn }); }
+    function st() { onStatus({ connected: got, peerReady: !!(peer && peer.open), lan: lanOn, why: why }); }
     function startLan() {
       lanOn = true;
       var cid = Math.random().toString(36).slice(2), seq = -1;
@@ -277,17 +277,27 @@
     if (typeof Peer !== 'undefined') {
       var mkPeer = function () {
         peer = new Peer();
-        peer.on('open', function () { st(); tryConn(); });
-        peer.on('error', function () { /* the watchdog below keeps retrying */ });
+        peer.on('open', function () { why = 'dialing'; st(); tryConn(); });
+        peer.on('error', function (err) {   // the watchdog below keeps retrying
+          var t = err && err.type;
+          if (t === 'peer-unavailable') { why = 'nohost'; conn = null; }
+          else if (t === 'network' || t === 'server-error' || t === 'socket-error' || t === 'socket-closed') why = 'signal';
+          else if (t === 'webrtc' || t === 'browser-incompatible') why = 'blocked';
+          st();
+        });
         peer.on('disconnected', function () { try { peer.reconnect(); } catch (e) { /* ignore */ } });
       };
       var tryConn = function () {
         if (!peer || !peer.open) return;
         if (conn && conn.open) return;
-        try { if (conn) conn.close(); } catch (e) { /* ignore */ }
+        // give a connection attempt 15 s to finish before starting over (it used to be cut off after 3 s)
+        if (conn && Date.now() - connAt < 15000) return;
+        if (conn) { if (why === 'dialing') why = 'blocked'; try { conn.close(); } catch (e) { /* ignore */ } st(); }
+        connAt = Date.now();
         conn = peer.connect(PEER_PREFIX + code, { reliable: true, serialization: 'json' });
+        conn.on('open', function () { why = 'open'; st(); });
         conn.on('data', function (m) { if (m && m.t === 'state') apply(m.s); });
-        conn.on('close', function () { got = bcOk; st(); });
+        conn.on('close', function () { got = bcOk; conn = null; st(); });
         conn.on('error', function () { });
       };
       mkPeer();
